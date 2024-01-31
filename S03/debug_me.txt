@@ -1,0 +1,4 @@
+The problem lies in the fact that in the function "f(a, b, c, d)", the operation "t2" can give rise to a
+ZeroDivisionError. This is because the definition of "t2" contains the operation "(t0/t1)", which are themselves
+variables given by the sum and substraction of the given parameters ("(a, b, c, d)"). Therefore, there are cases where
+t1 can be equal to cero (those where the parameters c and d are equal, since t1 = c - d).
