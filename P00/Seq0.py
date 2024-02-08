@@ -32,6 +32,7 @@ def seq_count(seq):
     for n in seq:
         if n not in unique:
             unique.append(n)
+    unique = sorted(unique)
     for n in unique:
         n_unique.append(seq_count_base(seq, n))
     return dict(zip(unique, n_unique))
