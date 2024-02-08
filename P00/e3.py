@@ -1,11 +1,10 @@
 from Seq0 import seq_len, seq_read_fasta
 
-
-paths = ['../S04/Sequences/U5.fa', '../S04/Sequences/ADA.fa', '../S04/Sequences/FRAT1.fa',
-         '../S04/Sequences/FXN.fa']
+folder = '../S04/Sequences/'
+paths = ['U5.fa', 'ADA.fa', 'FRAT1.fa', 'FXN.fa']
 lengths = []
 for n in paths:
-    lengths.append(seq_len(seq_read_fasta(n)))
+    lengths.append(seq_len(seq_read_fasta(folder + n)))
 
 data = dict(zip(paths, lengths))
 
