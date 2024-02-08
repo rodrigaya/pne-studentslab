@@ -19,3 +19,4 @@ for n in data:
     print('\nGene ' + n.split('/')[-1].replace('.fa', '') + ':')
     for m in data[n].keys():
         print('  ' + m + ':' + str(data[n][m]))
+a
