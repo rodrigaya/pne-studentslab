@@ -51,3 +51,4 @@ def seq_complement(seq):
     for n in seq:
         comp += corr[n]
     return comp
+a
