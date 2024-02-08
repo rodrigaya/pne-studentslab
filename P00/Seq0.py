@@ -47,7 +47,7 @@ def seq_reverse(seq):
 
 
 def seq_complement(seq):
-    corr = {'A': 'U', 'T': 'A', 'C': 'G', 'G': 'C'}
+    corr = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
     comp = ''
     for n in seq:
         comp += corr[n]
