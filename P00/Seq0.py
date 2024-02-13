@@ -14,11 +14,11 @@ def seq_read_fasta(filename):
     return seq
 
 
-def seq_len(seq):
+def seq_len(seq = None):
     return len(seq)
 
 
-def seq_count_base(seq, base):
+def seq_count_base(seq, base = None):
     n_b = 0
     for n in seq:
         if n == base:
