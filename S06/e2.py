@@ -1,6 +1,6 @@
 from seq01 import Seq
 
-class seq2(Seq):
+class Seq:
     def __init__(self, strbases):
         if type(strbases) == str and strbases.count('A') + strbases.count('C') + strbases.count('G') + strbases.count(
                 'T') == len(strbases):
@@ -9,7 +9,13 @@ class seq2(Seq):
         else:
             print('INCORRECT Sequence detected')
             self.strbases = 'ERROR'
+
         return
+
+    def __str__(self):
+        """Method called when the object is being printed"""
+        # -- We just return the string with the sequence
+        return self.strbases
 
 # herencia
 
