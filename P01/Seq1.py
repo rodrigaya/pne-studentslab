@@ -49,3 +49,4 @@ class Seq:
         for n in range(1, len(seq_list)):
             seq += seq_list[n].replace('\n', '')
         return Seq(seq)
+
