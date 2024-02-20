@@ -8,18 +8,27 @@ class Seq:
                 'T') == len(strbases):
             print("New sequence created!")
             self.strbases = strbases
+        elif strbases == None:
+            print("Null sequence created")
+            self.strbases = ('NULL')
         else:
-            print('INCORRECT Sequence detected')
+            print('INVALID sequence!')
             self.strbases = 'ERROR'
 
     def __str__(self):
         return self.strbases
 
     def len(self):
-        return len(self.strbases)
+        if self.strbases == 'ERROR' or self.strbases == 'NULL':
+            return 0
+        else:
+            return len(self.strbases)
 
     def count_base(self, base):
-        return self.strbases.count(base)
+        if self.strbases == 'ERROR' or self.strbases == 'NULL':
+            return 0
+        else:
+            return self.strbases.count(base)
 
     def count(self):
         basis = ['A', 'C', 'T', 'G']
