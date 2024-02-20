@@ -6,7 +6,8 @@ files = ['../S04/Sequences/U5.fa', '../S04/Sequences/ADA.fa', '../S04/Sequences/
          '../S04/Sequences/RNU6_269P.fa']
 for n in files:
     s = Seq()
-    d = s.seq_read_fasta(n).count()
+    s.seq_read_fasta(n)
+    d = s.count()
     maxi = sorted(d.values())[-1]
     key = ''
     for m in d.keys():
