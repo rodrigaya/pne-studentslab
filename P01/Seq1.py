@@ -33,23 +33,32 @@ class Seq:
     def count(self):
         basis = ['A', 'C', 'T', 'G']
         numbers = []
-        for n in basis:
-            numbers.append(self.strbases.count(n))
-        return dict(zip(basis, numbers))
+        if self.strbases == 'ERROR' or self.strbases == 'NULL':
+            return dict(zip(basis, [0, 0, 0, 0]))
+        else:
+            for n in basis:
+                numbers.append(self.strbases.count(n))
+            return dict(zip(basis, numbers))
 
     def seq_reverse(self):
         length = len(self.strbases)
         reverse = ''
-        for n in range(length):
-            reverse += self.strbases[length - n - 1]
-        return reverse
+        if self.strbases == 'ERROR' or self.strbases == 'NULL':
+            return 'ERROR'
+        else:
+            for n in range(length):
+                reverse += self.strbases[length - n - 1]
+            return reverse
 
     def seq_complement(self):
         corr = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
         comp = ''
-        for n in self.strbases:
-            comp += corr[n]
-        return comp
+        if self.strbases == 'ERROR' or self.strbases == 'NULL':
+            return 'ERROR'
+        else:
+            for n in self.strbases:
+                comp += corr[n]
+            return comp
 
     def seq_read_fasta(self, filename):
         file_contents = Path(filename).read_text()
@@ -58,4 +67,3 @@ class Seq:
         for n in range(1, len(seq_list)):
             seq += seq_list[n].replace('\n', '')
         return Seq(seq)
-

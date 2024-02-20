@@ -1,5 +1,6 @@
 from Seq1 import Seq
 
+print('-----| Practice 1, Exercise 5 |------')
 # -- Create a Null sequence
 s1 = Seq()
 
@@ -8,7 +9,7 @@ s2 = Seq("ACTGA")
 
 # -- Create an invalid sequence
 s3 = Seq("Invalid sequence")
-
-print(f'Sequence 1: (Length: {s1.len()}) {s1} \n A:{str(s1.count_base('A'))})
-print(f'Sequence 2: (Length: {s2.len()}) {s2} ')
-print(f'Sequence 3: (Length: {s3.len()}) {s3} ')
+seqs = [s1, s2, s3]
+for n in seqs:
+    print(f'Sequence {seqs.index(n) + 1}: (Length: {n.len()}) {n} \n  A: ' + str(n.count_base('A')) + ',   C: ' + str(
+        n.count_base('C')) + ',   T: ' + str(n.count_base('T')) + ',   G: ' + str(n.count_base('G')))
