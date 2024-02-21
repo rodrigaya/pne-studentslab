@@ -4,6 +4,7 @@ print('-----| Practice 1, Exercise 10 |------')
 
 files = ['../S04/Sequences/U5.fa', '../S04/Sequences/ADA.fa', '../S04/Sequences/FRAT1.fa', '../S04/Sequences/FXN.fa',
          '../S04/Sequences/RNU6_269P.fa']
+
 for n in files:
     s = Seq()
     s.seq_read_fasta(n)
