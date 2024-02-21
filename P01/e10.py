@@ -1,13 +1,12 @@
 from Seq1 import Seq
 
 print('-----| Practice 1, Exercise 10 |------')
-
-files = ['../S04/Sequences/U5.fa', '../S04/Sequences/ADA.fa', '../S04/Sequences/FRAT1.fa', '../S04/Sequences/FXN.fa',
-         '../S04/Sequences/RNU6_269P.fa']
+folder = '../S04/Sequences/'
+files = ['U5.fa', 'ADA.fa', 'FRAT1.fa', 'FXN.fa', 'RNU6_269P.fa']
 
 for n in files:
     s = Seq()
-    s.seq_read_fasta(n)
+    s.seq_read_fasta(folder + n)
     d = s.count()
     maxi = sorted(d.values())[-1]
     unique = []
