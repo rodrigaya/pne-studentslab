@@ -10,8 +10,18 @@ for n in files:
     s.seq_read_fasta(n)
     d = s.count()
     maxi = sorted(d.values())[-1]
-    key = ''
+    unique = []
+    for m in d.values():
+        if m not in unique:
+            unique.append(m)
+    key = []
     for m in d.keys():
-        if d[m] == maxi:
-            key = m
-    print('Gene ' + str(n.split('/')[-1].replace('.fa', '')) + ':' + ' Most frequent Base: ' + str(key))
+        if len(unique) < len(d.values()):
+            num = len(d.values()) - len(unique)
+            if d[m] == maxi:
+                key.append(m)
+        else:
+            if d[m] == maxi:
+                key.append(m)
+    print('Gene ' + str(n.split('/')[-1].replace('.fa', '')) + ':' + ' Most frequent Base: ' +
+          str(key).replace("'", '')[1:-1])

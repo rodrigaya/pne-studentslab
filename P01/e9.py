@@ -2,7 +2,7 @@ from Seq1 import Seq
 
 print('-----| Practice 1, Exercise 9 |------')
 
-n = '../S04/Sequences/U5.fa'
+n = '../S04/Sequences/FRAT1.fa'
 
 s = Seq()
 s.seq_read_fasta(n)
