@@ -1,0 +1,9 @@
+Destination IP   Name (if known)  Times
+212.218.255.81   Self             0.055 ms
+212.128.255.129  f-l3208-pc01     unreachable
+8.8.8.8          Google           5 ms
+10.1.133.221     Mobile
+212.128.240.50   www.urjc.es      3.5 ms
+140.82.121.3     github.com       36 ms
+185.15.58.224    wikipedia.org    18 ms
+203.209.197.14   newdomain.com.au 
