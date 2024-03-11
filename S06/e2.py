@@ -21,7 +21,6 @@ class Seq:
 
 
 def print_seqs(seq_list):
-    seq_n = len(seq_list)
     for n in seq_list:
         print('Sequence ' + str(seq_list.index(n)) + ': ' + '(Length: ' + str(len(str(n))) + ') ' + str(n))
 
