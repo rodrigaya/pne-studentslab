@@ -58,7 +58,6 @@ while True:
         # -- Read the message from the client
         # -- The received message is in raw bytes
         msg_raw = cs.recv(2048)
-
         # -- We decode it for converting it
         # -- into a human-redeable string
         msg = msg_raw.decode()
