@@ -26,7 +26,7 @@ for n in range(5):
     for m in range(10):
         newseq += seq[m + d]
     d += 10
-    print('To server: Fragment ' + str(n + 1) + ': ' + newseq)
+    print('Fragment ' + str(n + 1) + ': ' + newseq)
     c.talk('Fragment ' + str(n + 1) + ': ' + newseq)
 
 
