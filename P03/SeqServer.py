@@ -1,5 +1,12 @@
 import socket
 
+
+def get(n):
+    seqs = ['A', 'C', 'T', 'G']
+    seq = seqs[n - 1]
+    return seq
+
+
 PORT = 8080
 IP = "127.0.0.1"
 MAX_OPEN_REQUESTS = 5
@@ -20,12 +27,26 @@ try:
         print("CONNECTION: {}. From the IP: {}".format(number_con, address))
 
         msg = clientsocket.recv(2048).decode("utf-8")
-        if msg == 'PING':
-            print('OK')
+        if msg == "PING":
+            print("PING command!")
+            response = "OK!\n"
 
-        message = "OK!\n"
-        send_bytes = str.encode(message)
-        clientsocket.send(send_bytes)
+            clientsocket.send(response.encode())
+            print(response)
+
+        if msg.__contains__('GET'):
+            print("GET command!")
+            n = msg.strip().split(' ')[1]
+            if n.strip().isdigit():
+                response = str(get(int(n.strip())))
+            else:
+                response = 'Unexpected value'
+            clientsocket.send(response.encode())
+            print(response)
+
+        # message = "OK!\n"
+        # send_bytes = str.encode(message)
+        # clientsocket.send(send_bytes)
         clientsocket.close()
 
 except socket.error:
@@ -35,24 +56,4 @@ except KeyboardInterrupt:
     print("Server stopped by the user")
     serversocket.close()
 
-
-def ping():
-    print('OK')
-
-
-def get(n):
-    seqs = [1, 2, 3, 4]
-    seq = seqs[n]
-    return seq
-
-def info(seq)
-def wtd(msg):
-    if msg == 'PING':
-        ping()
-
-    if msg.contains('GET'):
-        get(int(msg[-1]))
-
-    if msg == 'INFO':
-        info(seq)
-
+# def info(seq)
