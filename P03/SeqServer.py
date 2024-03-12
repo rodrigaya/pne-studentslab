@@ -32,12 +32,22 @@ def gene(gene):
     folder = '../S04/Sequences/'
     if gene in genes:
         s = Seq()
-        result = s.seq_read_fasta(folder + gene + '.fa')
-        print(folder + gene + '.fa')
-        print(s.seq_read_fasta(folder + gene + '.fa'))
+        s.seq_read_fasta(folder + gene + '.fa')
+        result = s
     else:
         result = 'Invalid name'
     return result
+
+
+def get_funct(funct, l, obj):
+    cprint(funct, 'green')
+    seq = msg[l:].strip()
+    if len(seq) == 0:
+        response = 'Enter a ' + obj + ' name'
+    else:
+        response = str(gene(seq))
+    clientsocket.send(response.encode())
+    cprint(response, 'blue')
 
 
 PORT = 8080
