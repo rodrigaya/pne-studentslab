@@ -1,4 +1,6 @@
 import socket
+from Seq1 import Seq
+from termcolor import cprint
 
 
 def get(n):
@@ -7,26 +9,58 @@ def get(n):
     return seq
 
 
+def info(seq):
+    s = Seq(seq)
+    result = 'Sequence: ' + str(s) + '\nTotal length: ' + str(s.len()) + '\n' + 'A: ' + str(
+        s.count_base('A')) + ' (' + str((s.count_base('A') / s.len()) * 100)[:4] + '%)' + '\nC: ' + str(
+        s.count_base('C')) + ' (' + str((s.count_base('C') / s.len()) * 100)[:4] + '%)' + '\nT: ' + str(
+        s.count_base('T')) + ' (' + str((s.count_base('T') / s.len()) * 100)[:4] + '%)' + '\nG: ' + str(
+        s.count_base('G')) + ' (' + str((s.count_base('G') / s.len()) * 100)[:4] + '%)'
+    return result
+
+
+def comp(seq):
+    return Seq(seq).seq_complement()
+
+
+def rev(seq):
+    return Seq(seq).seq_reverse()
+
+
+def gene(gene):
+    genes = ['U5', 'ADA', 'FRAT1', 'FXN', 'RNU6_269P']
+    folder = '../S04/Sequences/'
+    if gene in genes:
+        s = Seq()
+        result = s.seq_read_fasta(folder + gene + '.fa')
+        print(folder + gene + '.fa')
+        print(s.seq_read_fasta(folder + gene + '.fa'))
+    else:
+        result = 'Invalid name'
+    return result
+
+
 PORT = 8080
-IP = "127.0.0.1"
+IP = "212.128.255.81"
 MAX_OPEN_REQUESTS = 5
 
 number_con = 0
 
-serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+ls = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+ls.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 try:
-    serversocket.bind((IP, PORT))
-    serversocket.listen(MAX_OPEN_REQUESTS)
+    ls.bind((IP, PORT))
+    ls.listen(MAX_OPEN_REQUESTS)
 
     while True:
         print("Waiting for connections at {}, {} ".format(IP, PORT))
-        (clientsocket, address) = serversocket.accept()
+        (clientsocket, address) = ls.accept()
 
         number_con += 1
 
         print("CONNECTION: {}. From the IP: {}".format(number_con, address))
 
-        msg = clientsocket.recv(2048).decode("utf-8")
+        msg = clientsocket.recv(2048).decode("utf-8").strip().upper()
         if msg == "PING":
             print("PING command!")
             response = "OK!\n"
@@ -34,19 +68,56 @@ try:
             clientsocket.send(response.encode())
             print(response)
 
-        if msg.__contains__('GET'):
+        if msg.startswith('GET'):
             print("GET command!")
-            n = msg.strip().split(' ')[1]
-            if n.strip().isdigit():
-                response = str(get(int(n.strip())))
+            n = msg.split(' ')[1].strip()
+            if n.isdigit() and 0 < int(n) < 5:
+                response = str(get(int(n)))
             else:
                 response = 'Unexpected value'
             clientsocket.send(response.encode())
             print(response)
 
-        # message = "OK!\n"
-        # send_bytes = str.encode(message)
-        # clientsocket.send(send_bytes)
+        if msg.startswith('INFO'):
+            cprint("INFO", 'green')
+            seq = msg[4:].strip()
+            if len(seq) == 0:
+                response = 'Enter a sequence'
+            else:
+                response = str(info(seq))
+            clientsocket.send(response.encode())
+            cprint(response, 'blue')
+
+        if msg.startswith('COMP'):
+            cprint("COMP", 'green')
+            seq = msg[4:].strip()
+            if len(seq) == 0:
+                response = 'Enter a sequence'
+            else:
+                response = str(comp(seq))
+            clientsocket.send(response.encode())
+            cprint(response, 'blue')
+
+        if msg.startswith('REV'):
+            cprint("REV", 'green')
+            seq = msg[3:].strip()
+            if len(seq) == 0:
+                response = 'Enter a sequence'
+            else:
+                response = str(rev(seq))
+            clientsocket.send(response.encode())
+            cprint(response, 'blue')
+
+        if msg.startswith('GENE'):
+            cprint("GENE", 'green')
+            seq = msg[4:].strip()
+            if len(seq) == 0:
+                response = 'Enter a gene name'
+            else:
+                response = str(gene(seq))
+            clientsocket.send(response.encode())
+            cprint(response, 'blue')
+
         clientsocket.close()
 
 except socket.error:
@@ -54,6 +125,6 @@ except socket.error:
 
 except KeyboardInterrupt:
     print("Server stopped by the user")
-    serversocket.close()
+    ls.close()
 
 # def info(seq)
