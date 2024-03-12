@@ -89,44 +89,16 @@ try:
             print(response)
 
         if msg.startswith('INFO'):
-            cprint("INFO", 'green')
-            seq = msg[4:].strip()
-            if len(seq) == 0:
-                response = 'Enter a sequence'
-            else:
-                response = str(info(seq))
-            clientsocket.send(response.encode())
-            cprint(response, 'blue')
+            get_funct('info', 4, 'sequence')
 
         if msg.startswith('COMP'):
-            cprint("COMP", 'green')
-            seq = msg[4:].strip()
-            if len(seq) == 0:
-                response = 'Enter a sequence'
-            else:
-                response = str(comp(seq))
-            clientsocket.send(response.encode())
-            cprint(response, 'blue')
+            get_funct('comp', 4, 'sequence')
 
         if msg.startswith('REV'):
-            cprint("REV", 'green')
-            seq = msg[3:].strip()
-            if len(seq) == 0:
-                response = 'Enter a sequence'
-            else:
-                response = str(rev(seq))
-            clientsocket.send(response.encode())
-            cprint(response, 'blue')
+            get_funct('rev', 3, 'sequence')
 
         if msg.startswith('GENE'):
-            cprint("GENE", 'green')
-            seq = msg[4:].strip()
-            if len(seq) == 0:
-                response = 'Enter a gene name'
-            else:
-                response = str(gene(seq))
-            clientsocket.send(response.encode())
-            cprint(response, 'blue')
+            get_funct('gene', 4, 'gene')
 
         clientsocket.close()
 
