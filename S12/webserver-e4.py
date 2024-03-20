@@ -44,7 +44,7 @@ def process_client(s):
       </body>
     </html>
     """
-    body = Path('index.html').read_text()
+    body = Path('P04/html/info/A.html').read_text()
 
 
     # -- Status line: We respond that everything is ok (200 code)
