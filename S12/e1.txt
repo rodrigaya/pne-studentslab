@@ -1,0 +1,36 @@
+
+
+Which is the request line?
+Which is the resource that the client is asking for? (the path)
+
+http://127.0.0.1:8080/hello
+
+Request line 1: GET /hello HTTP/1.1
+Request line 2: GET /favicon.ico HTTP/1.1
+Path 1: /hello
+Path 2: /favicon.ico
+
+
+http://127.0.0.1:8080/file.html
+
+Request line 1: GET /file.html HTTP/1.1
+Request line 2: OPTIONS /file.html HTTP/1.1
+Request line 3: GET /favicon.ico HTTP/1.1
+Path 1: /file.html
+Path 2: /file.html
+Path 3: /favicon.ico
+
+
+http://127.0.0.1:8080/hi/there?name=virus&type=corona
+
+Request line 1: GET /hi/there?name=virus&type=corona HTTP/1.1
+Request line 2: OPTIONS /hi/there?name=virus&type=corona HTTP/1.1
+Request line 3: GET /favicon.ico HTTP/1.1
+Path 1: /hi/there?name=virus&type=corona
+Path 2: /hi/there?name=virus&type=corona
+Path 3: /favicon.ico
+
+
+What should be the URL that we have to write in the browser for accessing the /dna/u5 resource?
+
+http://127.0.0.1:8080/dna/u5.html
