@@ -1,5 +1,5 @@
 import socket
-import termcolor
+import termcolor as c
 
 
 # -- Server network parameters
@@ -13,7 +13,7 @@ def process_client(s):
     req = req_raw.decode()
 
     print("Message FROM CLIENT: ")
-    termcolor.cprint(req, "green")
+    c.cprint(req, "green")
 
 
 # -------------- MAIN PROGRAM

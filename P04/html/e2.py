@@ -1,5 +1,6 @@
 import socket
 import termcolor
+from pathlib import Path
 
 # -- Server network parameters
 IP = "127.0.0.1"
@@ -18,8 +19,7 @@ def process_client(s):
 
     # -- The request line is the first
     req_line = lines[0]
-
-    print("Request line: ", end="")
+    print("Request line: ", end='')
     termcolor.cprint(req_line, "green")
 
     # -- Generate the response message
@@ -29,14 +29,20 @@ def process_client(s):
     # blank line
     # Body (content to send)
 
-    # -- Let's start with the body
-    body = "received"
+    # This new contents are written in HTML language
+    folder = '/home/alumnos/rgaya/PycharmProjects/pne-studentslab/P04/html/info/'
+    options = ['A', 'C', 'T', 'G']
+    if req_line.__contains__('GET /info/A'):
+        body = Path('/home/alumnos/rgaya/PycharmProjects/pne-studentslab/P04/html/info/A.html').read_text()
+    else:
+        body = Path('/home/alumnos/rgaya/PycharmProjects/pne-studentslab/P04/html/info/error.html').read_text()
+
 
     # -- Status line: We respond that everything is ok (200 code)
     status_line = "HTTP/1.1 200 OK\n"
 
     # -- Add the Content-Type header
-    header = "Content-Type: text/plain\n"
+    header = "Content-Type: text/html  \n"
 
     # -- Add the Content-Length
     header += f"Content-Length: {len(body)}\n"
@@ -60,7 +66,7 @@ ls.bind((IP, PORT))
 # -- Become a listening socket
 ls.listen()
 
-print("Echo server configured!")
+print("Green server configured!")
 
 # --- MAIN LOOP
 while True:
