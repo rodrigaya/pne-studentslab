@@ -41,7 +41,7 @@ def process_client(s):
         body = Path('/home/alumnos/rgaya/PycharmProjects/pne-studentslab/P04/html/info/T.html').read_text()
     elif req_line.__contains__('GET /info/G') and option in options:
         body = Path('/home/alumnos/rgaya/PycharmProjects/pne-studentslab/P04/html/info/G.html').read_text()
-    elif req_line.__contains__('GET') and option in options:
+    elif req_line.__contains__('GET'):
         body = Path('/home/alumnos/rgaya/PycharmProjects/pne-studentslab/P04/html/info/index.html').read_text()
     else:
         body = Path('/home/alumnos/rgaya/PycharmProjects/pne-studentslab/P04/html/info/error.html').read_text()
