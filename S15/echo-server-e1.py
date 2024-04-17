@@ -30,14 +30,14 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         try:
             if search == '' or search == 'echo':
                 contents = Path(folder + 'form-e1.html').read_text()
-            else:
+            elif search.__contains__('msg='):
                 msg = search.split('=')[1]
                 contents = '''
                 <!DOCTYPE html>
                     <html lang="en" dir="ltr">
                       <head>
                         <meta charset="utf-8">
-                        <title>Adenosine</title>
+                        <title>RESULT</title>
                       </head>
                       <body style="background-color: white;">
                         <h1>RECEIVED MESSAGE:</h1>
@@ -46,7 +46,8 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                         <a href="/">Main page</a>
                       </body>
                     </html>'''
-
+            else:
+                contents = Path('html/error.html').read_text()
         except FileNotFoundError:
             contents = Path('html/error.html').read_text()
 
