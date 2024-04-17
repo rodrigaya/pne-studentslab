@@ -24,9 +24,6 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         folder = 'html/'
         search = self.requestline.split(' ')[1][1:]
-        print(self.requestline.split(' '))
-        print(self.requestline.split(' ')[1][1:])
-        print(folder + search)
         try:
             if search == '' or search == 'echo':
                 contents = Path(folder + 'form-e1.html').read_text()
