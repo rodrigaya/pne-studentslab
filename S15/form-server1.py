@@ -6,6 +6,7 @@ from pathlib import Path
 # Define the Server's port
 PORT = 8080
 
+
 # -- This is for preventing the error: "Port already in use"
 socketserver.TCPServer.allow_reuse_address = True
 
@@ -21,32 +22,22 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         # Print the request line
         termcolor.cprint(self.requestline, 'green')
 
-        # IN this simple server version:
-        # We are NOT processing the client's request
-        # It is a happy server: It always returns a message saying
-        # that everything is ok
-        folder = 'html/'
-        search = self.requestline.split(' ')[1][1:]
-        try:
-            if search == '':
-                contents = Path(folder + 'index.html').read_text()
-            else:
-                contents = Path(folder + search).read_text()
-        except FileNotFoundError:
-            contents = Path('html/error.html').read_text()
+        # Open the form1.html file
+        # Read the index from the file
+        contents = Path('html/form-1.html').read_text()
 
         # Generating the response message
         self.send_response(200)  # -- Status line: OK!
 
         # Define the content-type header:
         self.send_header('Content-Type', 'text/html')
-        self.send_header('Content-Length', len(contents.encode()))
+        self.send_header('Content-Length', len(str.encode(contents)))
 
         # The header is finished
         self.end_headers()
 
         # Send the response message
-        self.wfile.write(contents.encode())
+        self.wfile.write(str.encode(contents))
 
         return
 
@@ -59,6 +50,7 @@ Handler = TestHandler
 
 # -- Open the socket server
 with socketserver.TCPServer(("", PORT), Handler) as httpd:
+
     print("Serving at PORT", PORT)
 
     # -- Main loop: Attend the client. Whenever there is a new
