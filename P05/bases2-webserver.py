@@ -25,11 +25,19 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         # We are NOT processing the client's request
         # It is a happy server: It always returns a message saying
         # that everything is ok
-        if self.requestline.split(' ')[1] == '/' or self.requestline.split(' ')[1] == '/index':
-            # Message to send back to the client
-            contents = Path('/S14/info/index.html').read_text()
-        else:
-            contents = Path('/home/alumnos/rgaya/PycharmProjects/pne-studentslab/P04/html/info/error.html').read_text()
+        folder = 'html/'
+        search = self.requestline.split(' ')[1][1:]
+        print(self.requestline.split(' '))
+        print(folder)
+        print(search)
+        print(folder + search)
+        try:
+            if search == '':
+                contents = Path(folder + 'index.html').read_text()
+            else:
+                contents = Path(folder + search).read_text()
+        except FileNotFoundError:
+            contents = Path('html/error.html').read_text()
 
         # Generating the response message
         self.send_response(200)  # -- Status line: OK!

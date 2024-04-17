@@ -34,7 +34,7 @@ def process_client(s):
     options = ['A', 'C']
     option = req_line.replace('GET /info/', '')[0:1]
     if req_line.__contains__('GET /info/A') and option in options:
-        body = Path('/home/alumnos/rgaya/PycharmProjects/pne-studentslab/P04/html/info/A.html').read_text()
+        body = Path('/P05/html/A.html').read_text()
     else:
         body = Path('/home/alumnos/rgaya/PycharmProjects/pne-studentslab/P04/html/info/error.html').read_text()
 

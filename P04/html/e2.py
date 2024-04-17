@@ -33,7 +33,7 @@ def process_client(s):
     folder = '/home/alumnos/rgaya/PycharmProjects/pne-studentslab/P04/html/info/'
     options = ['A', 'C', 'T', 'G']
     if req_line.__contains__('GET /info/A'):
-        body = Path('/home/alumnos/rgaya/PycharmProjects/pne-studentslab/P04/html/info/A.html').read_text()
+        body = Path('/P05/html/A.html').read_text()
     else:
         body = Path('/home/alumnos/rgaya/PycharmProjects/pne-studentslab/P04/html/info/error.html').read_text()
 
