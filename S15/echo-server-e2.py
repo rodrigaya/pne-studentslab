@@ -29,7 +29,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 contents = Path(folder + 'form-e2.html').read_text()
             elif search.__contains__('msg='):
                 if search.__contains__('chk=on'):
-                    msg = search.split('=')[1].upper
+                    msg = search.split('=')[1].split('&')[0].upper()
                 else:
                     msg = search.split('=')[1]
                 contents = '''
