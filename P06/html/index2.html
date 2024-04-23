@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SEQ2 server</title>
+  </head>
+  <body style="background-color: white;">
+    <h1>SEQ2 server</h1>
+    <form action="ping" method="get">
+      Access to the server <br>
+      <hr>
+      Is the server alive? <input type="submit" value="SEND">
+      <hr>
+    </form>
+    Get a sequence. Select sequence number
+    <form action="get" method="get">
+        <select name="operation">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select>
+        <input type="submit" value="GET">
+    </form>
+  <hr>
+  </body>
+</html>

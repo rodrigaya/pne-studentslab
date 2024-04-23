@@ -6,7 +6,6 @@ from pathlib import Path
 # Define the Server's port
 PORT = 8080
 
-
 # -- This is for preventing the error: "Port already in use"
 socketserver.TCPServer.allow_reuse_address = True
 
@@ -22,33 +21,25 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         # Print the request line
         termcolor.cprint(self.requestline, 'green')
 
+        # IN this simple server version:
+        # We are NOT processing the client's request
+        # It is a happy server: It always returns a message saying
+        # that everything is ok
         folder = 'html/'
         search = self.requestline.split(' ')[1][1:]
         print(search)
         try:
-            if search == '' or search == 'echo':
-                contents = Path(folder + 'form-e2.html').read_text()
-            elif search.__contains__('msg='):
-                if search.__contains__('chk=on'):
-                    msg = search.split('=')[1].split('&chk=on')[0].upper()
-                else:
-                    msg = search.split('=')[1]
-                contents = '''
-                <!DOCTYPE html>
-                    <html lang="en" dir="ltr">
-                      <head>
-                        <meta charset="utf-8">
-                        <title>RESULT</title>
-                      </head>
-                      <body style="background-color: white;">
-                        <h1>RECEIVED MESSAGE:</h1>
-                        <p>''' + msg + '''</p>
-                        <p></p>
-                        <a href="/">Main page</a>
-                      </body>
-                    </html>'''
+            if search == '':
+                contents = Path(folder + 'index2.html').read_text()
+            elif search == 'ping?':
+                contents = Path(folder + search + '.html').read_text()
+            elif search == 'get?':
+                folder2 = '../S04/Sequences'
+                number = self.requestline.split(' ')[1].split('=')[1]
+                seq = ['ADA.fa', 'FRAT1.fa', 'FXN.fa', 'RNU6_269P.fa', 'U5.fa'][int(number)]
+                contents = Path(folder + 'sequences.html').read_text().format
             else:
-                contents = Path('html/error.html').read_text()
+                contents = Path(folder + 'error.html').read_text()
         except FileNotFoundError:
             contents = Path('html/error.html').read_text()
 
