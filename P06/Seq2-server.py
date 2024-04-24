@@ -33,11 +33,32 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 contents = Path(folder + 'index2.html').read_text()
             elif search == 'ping?':
                 contents = Path(folder + search + '.html').read_text()
-            elif search == 'get?':
-                folder2 = '../S04/Sequences'
-                number = self.requestline.split(' ')[1].split('=')[1]
-                seq = ['ADA.fa', 'FRAT1.fa', 'FXN.fa', 'RNU6_269P.fa', 'U5.fa'][int(number)]
-                contents = Path(folder + 'sequences.html').read_text().format
+            elif search[0:4] == 'get?':
+                seqs = ['ACCTCCTCTCCAGCAATGCCAACCCCAGTCCAGGCCCCCATCCGCCCAGGATCTCGATCA', 'AAAAACATTAATCTGTGGCCTTTCTTTGCCATTTCCAACTCTGCCACCTCCATCGAACGA',
+                        'CAAGGTCCCCTTCTTCCTTTCCATTCCCGTCAGCTTCATTTCCCTAATCTCCGTACAAAT', 'CCCTAGCCTGACTCCCTTTCCTTTCCATCCTCACCAGACGCCCGCATGCCGGACCTCAAA',
+                        'AGCGCAAACGCTAAAAACCGGTTGAGTTGACGCACGGAGAGAAGGGGTGTGTGGGTGGGT']
+
+            elif search[0:5] == 'gene?':
+                folder2 = '../S04/Sequences/'
+                seq = self.requestline.split(' ')[1].split('=')[1]
+                base = Path(folder2 + seq).read_text()
+                body = base[base.find('\n'):].replace('\n', '')
+                #contents = Path(folder + 'sequences.html').read_text().format({body})
+                contents = '''
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>GENE</title>
+                </head>
+                <body>
+                <h1> Gene: ''' + seq.upper() + '''</h1>
+                <textarea rows="50" cols="100">'''+ body +'''</textarea>
+                <p></p>
+                <a href="/">Main page</a>
+                </body>
+                </html>
+                '''
             else:
                 contents = Path(folder + 'error.html').read_text()
         except FileNotFoundError:
