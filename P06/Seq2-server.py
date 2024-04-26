@@ -1,7 +1,26 @@
 import http.server
 import socketserver
-import termcolor
+# import termcolor
 from pathlib import Path
+
+
+def create_html(tool, title, body, color='white', link='/', link_text='Main page'):
+    result = '''<!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>''' + tool + '''</title>
+                </head>
+                <body style="background-color: ''' + color + ''';">
+                <h1>''' + title + '''</h1>
+                ''' + body + '''
+                <p></p>
+                <a href="''' + link + '''">''' + link_text + '''</a>
+                </body>
+                </html>
+                '''
+    return result
+
 
 # Define the Server's port
 PORT = 8080
@@ -19,46 +38,46 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         in the HTTP protocol request"""
 
         # Print the request line
-        termcolor.cprint(self.requestline, 'green')
+        # termcolor.cprint(self.requestline, 'green')
+        print(self.requestline, 'green')
 
         # IN this simple server version:
         # We are NOT processing the client's request
         # It is a happy server: It always returns a message saying
         # that everything is ok
         folder = 'html/'
-        search = self.requestline.split(' ')[1][1:]
+        search = self.requestline.split(' ')[1][1:].split('?')[0]
         print(search)
         try:
             if search == '':
                 contents = Path(folder + 'index2.html').read_text()
-            elif search == 'ping?':
+            elif search == 'ping':
                 contents = Path(folder + search + '.html').read_text()
-            elif search[0:4] == 'get?':
-                seqs = ['ACCTCCTCTCCAGCAATGCCAACCCCAGTCCAGGCCCCCATCCGCCCAGGATCTCGATCA', 'AAAAACATTAATCTGTGGCCTTTCTTTGCCATTTCCAACTCTGCCACCTCCATCGAACGA',
-                        'CAAGGTCCCCTTCTTCCTTTCCATTCCCGTCAGCTTCATTTCCCTAATCTCCGTACAAAT', 'CCCTAGCCTGACTCCCTTTCCTTTCCATCCTCACCAGACGCCCGCATGCCGGACCTCAAA',
+            elif search == 'get':
+                n = int(self.requestline.split(' ')[1][1:].split('=')[1])
+                seqs = ['ACCTCCTCTCCAGCAATGCCAACCCCAGTCCAGGCCCCCATCCGCCCAGGATCTCGATCA',
+                        'AAAAACATTAATCTGTGGCCTTTCTTTGCCATTTCCAACTCTGCCACCTCCATCGAACGA',
+                        'CAAGGTCCCCTTCTTCCTTTCCATTCCCGTCAGCTTCATTTCCCTAATCTCCGTACAAAT',
+                        'CCCTAGCCTGACTCCCTTTCCTTTCCATCCTCACCAGACGCCCGCATGCCGGACCTCAAA',
                         'AGCGCAAACGCTAAAAACCGGTTGAGTTGACGCACGGAGAGAAGGGGTGTGTGGGTGGGT']
-
-            elif search[0:5] == 'gene?':
+                # contents = create_html('get', 'Sequence number ' + str(n), seqs[n])
+                contents = Path(folder + search + '.html').read_text().replace('{n}', str(n)).replace('{body}', seqs[n])
+            elif search == 'gene':
                 folder2 = '../S04/Sequences/'
                 seq = self.requestline.split(' ')[1].split('=')[1]
                 base = Path(folder2 + seq).read_text()
                 body = base[base.find('\n'):].replace('\n', '')
-                #contents = Path(folder + 'sequences.html').read_text().format({body})
-                contents = '''
-                <!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <meta charset="UTF-8">
-                    <title>GENE</title>
-                </head>
-                <body>
-                <h1> Gene: ''' + seq.upper() + '''</h1>
-                <textarea rows="50" cols="100">'''+ body +'''</textarea>
-                <p></p>
-                <a href="/">Main page</a>
-                </body>
-                </html>
-                '''
+                contents = Path(folder + search + '.html').read_text().replace('{gene}', seq).replace('{body}', body)
+            elif search == 'operation':
+                operation = self.requestline.split('?msg=')[1].split('%op=')[0]
+                msg = self.requestline.split('&op=')[0][-1].replace('=', '').upper()
+                print(operation)
+                print(msg)
+                if operation == 'info':
+                    a = 'a'
+                #elif operation == 1:
+                #elif operation == 2:
+                contents = 'a'
             else:
                 contents = Path(folder + 'error.html').read_text()
         except FileNotFoundError:
@@ -88,7 +107,6 @@ Handler = TestHandler
 
 # -- Open the socket server
 with socketserver.TCPServer(("", PORT), Handler) as httpd:
-
     print("Serving at PORT", PORT)
 
     # -- Main loop: Attend the client. Whenever there is a new
