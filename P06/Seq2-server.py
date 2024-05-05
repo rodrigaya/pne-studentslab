@@ -5,30 +5,34 @@ from pathlib import Path
 
 
 def info(msg):
-    length = len(msg)
-    new = []
-    times = []
+    result = 'Total length: '
+    result += str(len(msg)) + '<p></p>'
+    newchar = []
     for n in msg:
-        if n not in new:
-            new.append(n)
-    for n in new:
-        time = 0
-        for ñ in msg:
-            if n == ñ:
-                time += 1
-        times.append(time)
-    corr = dict(zip(new, times))
-    result = \
-        'Total length: ' + str(length) + '\n'
-    for n in new:
-        string = ''
-        for a in range(len(new)):
-            string += new[a] + ': ' + corr[new[a]] + ' (' + str((int(corr[new[a]])/length) * 100) + '%)'
-    result += string
-
-
-
+        if n not in newchar:
+            newchar.append(n)
+    for n in newchar:
+        t = msg.count(n)
+        result += n + ': ' + str(t) + ' (' + str(((t / len(msg)) * 100).__round__(1)) + '%)<p></p>'
     return result
+
+
+def comp(msg):
+    # check msg is str with only allowed char (off funct)
+    dcomp = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
+    result = ''
+    for n in msg:
+        result += dcomp[n]
+    return result
+
+
+def rev(msg):
+    result = ''
+    ll = len(msg)
+    for n in range(ll):
+        result += msg[ll - n - 1]
+    return result
+
 
 # Define the Server's port
 PORT = 8080
@@ -78,7 +82,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 contents = Path(folder + search + '.html').read_text().replace('{gene}', seq).replace('{body}', body)
             elif search == 'operation':
                 operation = self.requestline.split('&op=')[1].split('HTTP/')[0].strip()
-                msg = self.requestline.split('&op=')[0].split('?msg=')[1].upper()
+                msg = self.requestline.split('&op=')[0].split('?msg=')[1].upper().strip()
                 print(operation)
                 print(msg)
                 if operation == 'info':
@@ -86,9 +90,13 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                                                                                                          operation).replace(
                         '{result}', str(info(msg)))
                 elif operation == 'comp':
-                    contents = 'a'
+                    contents = Path(folder + search + '.html').read_text().replace('{seq}', msg).replace('{op}',
+                                                                                                         operation).replace(
+                        '{result}', str(comp(msg)))
                 elif operation == 'rev':
-                    contents = 'a'
+                    contents = Path(folder + search + '.html').read_text().replace('{seq}', msg).replace('{op}',
+                                                                                                         operation).replace(
+                        '{result}', str(rev(msg)))
                 else:
                     contents = Path('html/error.html').read_text()
             else:
