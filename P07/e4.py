@@ -1,6 +1,7 @@
 import http.client
 import json
 from termcolor import cprint
+from Seq1 import Seq
 
 genes = {
     'FRAT1': 'ENSG00000165879',
@@ -15,7 +16,11 @@ genes = {
     'ANK2': 'ENSG00000145362'
 }
 
-idg = genes['MIR633']
+gene = input('Enter a gene name: ').upper().strip()
+while gene not in genes:
+    gene = input('Enter a valid gene name:').upper().strip()
+
+idg = genes[gene]
 
 SERVER = "rest.ensembl.org"
 ENDPOINT = "/sequence/id/" + idg
@@ -50,8 +55,25 @@ data1 = r1.read().decode("utf-8")
 response = json.loads(data1)
 
 cprint('Gene: ', 'yellow', end='', force_color=True)
-print('MIR633')
+print(gene)
 cprint('Description: ', 'yellow', end='', force_color=True)
 print(response['desc'])
 cprint('Bases: ', 'yellow', end='', force_color=True)
 print(response['seq'])
+
+g = Seq(response['seq'])
+cprint('Total length: ', 'yellow', end='', force_color=True)
+print(g.len())
+count = g.count()
+for base in count:
+    cprint(base, 'blue', end='', force_color=True)
+    print(':', str(count[base]) + ' (' + str(((count[base] / g.len()) * 100).__round__(1)) + '%)')
+
+biggest = 0
+b = ''
+for base in count:
+    if count[base] > biggest:
+        biggest = count[base]
+        b = base
+cprint('Most frequent base: ', 'yellow', end='', force_color=True)
+print(b)
