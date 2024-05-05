@@ -1,6 +1,6 @@
 import http.server
 import socketserver
-# import termcolor
+import termcolor
 from pathlib import Path
 
 
@@ -18,7 +18,6 @@ def info(msg):
 
 
 def comp(msg):
-    # check msg is str with only allowed char (off funct)
     dcomp = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
     result = ''
     for n in msg:
@@ -50,7 +49,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         in the HTTP protocol request"""
 
         # Print the request line
-        # termcolor.cprint(self.requestline, 'green')
+        termcolor.cprint(self.requestline, 'green')
         print(self.requestline, 'green')
 
         # IN this simple server version:
@@ -59,10 +58,10 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         # that everything is ok
         folder = 'html/'
         search = self.requestline.split(' ')[1][1:].split('?')[0]
-        print(search)
+        print('Search: ' + search)
         try:
             if search == '':
-                contents = Path(folder + 'index2.html').read_text()
+                contents = Path(folder + 'index.html').read_text()
             elif search == 'ping':
                 contents = Path(folder + search + '.html').read_text()
             elif search == 'get':
@@ -72,33 +71,38 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                         'CAAGGTCCCCTTCTTCCTTTCCATTCCCGTCAGCTTCATTTCCCTAATCTCCGTACAAAT',
                         'CCCTAGCCTGACTCCCTTTCCTTTCCATCCTCACCAGACGCCCGCATGCCGGACCTCAAA',
                         'AGCGCAAACGCTAAAAACCGGTTGAGTTGACGCACGGAGAGAAGGGGTGTGTGGGTGGGT']
-                # contents = create_html('get', 'Sequence number ' + str(n), seqs[n])
                 contents = Path(folder + search + '.html').read_text().replace('{n}', str(n)).replace('{body}', seqs[n])
             elif search == 'gene':
                 folder2 = '../S04/Sequences/'
                 seq = self.requestline.split(' ')[1].split('=')[1]
                 base = Path(folder2 + seq).read_text()
                 body = base[base.find('\n'):].replace('\n', '')
-                contents = Path(folder + search + '.html').read_text().replace('{gene}', seq).replace('{body}', body)
+                contents = Path(folder + search + '.html').read_text().replace('{gene}',
+                                                                               seq.replace('.fa', '')).replace('{body}',
+                                                                                                               body)
             elif search == 'operation':
                 operation = self.requestline.split('&op=')[1].split('HTTP/')[0].strip()
                 msg = self.requestline.split('&op=')[0].split('?msg=')[1].upper().strip()
-                print(operation)
-                print(msg)
-                if operation == 'info':
-                    contents = Path(folder + search + '.html').read_text().replace('{seq}', msg).replace('{op}',
-                                                                                                         operation).replace(
-                        '{result}', str(info(msg)))
-                elif operation == 'comp':
-                    contents = Path(folder + search + '.html').read_text().replace('{seq}', msg).replace('{op}',
-                                                                                                         operation).replace(
-                        '{result}', str(comp(msg)))
-                elif operation == 'rev':
-                    contents = Path(folder + search + '.html').read_text().replace('{seq}', msg).replace('{op}',
-                                                                                                         operation).replace(
-                        '{result}', str(rev(msg)))
+                if msg.count('A') + msg.count('C') + msg.count('T') + msg.count('G') != len(msg):
+                    contents = Path('html/error.html').read_text().replace('Resource not available',
+                                                                           'Incorrect aminoacid bases')
                 else:
-                    contents = Path('html/error.html').read_text()
+                    print('Op: ' + operation)
+                    print('Msg: ' + msg)
+                    if operation == 'info':
+                        contents = Path(folder + search + '.html').read_text().replace('{seq}', msg).replace('{op}',
+                                                                                                             operation).replace(
+                            '{result}', str(comp(msg)))
+                    elif operation == 'comp':
+                        contents = Path(folder + search + '.html').read_text().replace('{seq}', msg).replace('{op}',
+                                                                                                             operation).replace(
+                            '{result}', str(comp(msg)))
+                    elif operation == 'rev':
+                        contents = Path(folder + search + '.html').read_text().replace('{seq}', msg).replace('{op}',
+                                                                                                             operation).replace(
+                            '{result}', str(rev(msg)))
+                    else:
+                        contents = Path('html/error.html').read_text()
             else:
                 contents = Path(folder + 'error.html').read_text()
         except FileNotFoundError:
