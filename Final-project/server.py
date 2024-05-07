@@ -2,7 +2,7 @@ import http.client
 import json
 
 SERVER = "rest.ensembl.org"
-ENDPOINT = "/documentation/info/species"
+ENDPOINT = "/info/species"
 PARAMS = "?content-type=application/json"
 
 URL = SERVER + ENDPOINT + PARAMS
@@ -29,6 +29,7 @@ print(f"Response received!: {r1.status} {r1.reason}\n")
 
 # -- Read the response's body
 data1 = r1.read().decode("utf-8")
+# READ RESPONSE HTML AND REPLACE ANSWER
 print(data1)
 
 # -- Transform it into JSON format
