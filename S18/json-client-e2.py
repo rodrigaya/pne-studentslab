@@ -1,4 +1,3 @@
-
 import http.client
 import json
 from termcolor import cprint
