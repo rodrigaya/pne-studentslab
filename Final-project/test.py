@@ -1,19 +1,18 @@
 import http.server
 import socketserver
-import termcolor
+from termcolor import cprint
 from pathlib import Path
 import http.client
 import json
 
 
-def get_contents(search):
+def get_contents(search, msg):
     server = "rest.ensembl.org"
+    params = '?content-type=application/json'
     if search == '1':
         endpoint = '/info/species'
-        params = '?content-type=application/json'
     else:
         endpoint = '/info/assembly/homo_sapiens'
-        params = '?content-type=application/json'
 
     url = server + endpoint + params
 
@@ -40,11 +39,11 @@ def get_contents(search):
     # -- Read the response's body
     data1 = r1.read().decode("utf-8")
     # READ RESPONSE HTML AND REPLACE ANSWER
-    print(data1)
 
     # -- Transform it into JSON format
     response = json.loads(data1)
-    return data1
+    print(response)
+    return response
 
 
 # Define the Server's port
@@ -63,22 +62,27 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         in the HTTP protocol request"""
 
         # Print the request line
-        termcolor.cprint(self.requestline, 'green')
+        cprint(self.requestline, 'green')
 
         folder = 'html/'
         search = self.requestline.split(' ')[1][1:].split('?')[0]
-        msg = self.requestline.split('msg=')[1].split(' ')[0]
-        print(msg)
-        print('Search: ' + search)
+        cprint('Search: ' + search, 'blue')
+        if self.requestline.__contains__('msg='):
+            msg = self.requestline.split('msg=')[1].split(' ')[0]
+            cprint('Message: ' + msg, 'blue')
         try:
             if search == '':
                 contents = Path(folder + 'main.html').read_text()
             elif search == '1':
                 if not msg.isdigit():
-                    contents = Path('html/error.html').read_text().replace('Resource not available',
-                                                                           'Only numbers allowed')
+                    contents = Path(folder + 'error.html').read_text().replace('Resource not available',
+                                                                               'Only numbers allowed')
                 else:
-                    contents = Path(folder + 'content.html').read_text().replace('{content}', get_contents(search))
+                    contents = (Path(folder + 'content.html').read_text())
+                    get_contents(search, msg)
+            #.replace('{content}', get_contents(search, msg)))
+            else:
+                contents = Path(folder + 'error.html').read_text()
             # elif search == 2:
             # elif search == 3:
         except FileNotFoundError:
