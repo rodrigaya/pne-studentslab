@@ -4,28 +4,29 @@ from termcolor import cprint
 from pathlib import Path
 import http.client
 import json
+import pprint
+
+server = "rest.ensembl.org"
 
 
-def get_contents(search, msg):
-    server = "rest.ensembl.org"
+def get_ep(search):
     params = '?content-type=application/json'
     if search == '1':
         endpoint = '/info/species'
     else:
         endpoint = '/info/assembly/homo_sapiens'
 
-    url = server + endpoint + params
+    return endpoint + params
 
-    print(f"\nServer: {server}")
-    print(f"URL: {url}")
 
+def get_info(ep):
     # Connect with the server
     conn = http.client.HTTPConnection(server)
 
     # -- Send the request message, using the GET method. We are
     # -- requesting the main page (/)
     try:
-        conn.request("GET", endpoint + params)
+        conn.request("GET", ep)
     except ConnectionRefusedError:
         print("ERROR! Cannot connect to the Server")
         exit()
@@ -38,11 +39,10 @@ def get_contents(search, msg):
 
     # -- Read the response's body
     data1 = r1.read().decode("utf-8")
-    # READ RESPONSE HTML AND REPLACE ANSWER
 
     # -- Transform it into JSON format
     response = json.loads(data1)
-    print(response)
+    # pprint.pp(response)
     return response
 
 
@@ -61,29 +61,45 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         """This method is called whenever the client invokes the GET method
         in the HTTP protocol request"""
 
-        # Print the request line
-        cprint(self.requestline, 'green')
-
         folder = 'html/'
+
+        # Print the request line
+        cprint(self.requestline, 'green', force_color=True)
+
+        # Print the search
         search = self.requestline.split(' ')[1][1:].split('?')[0]
-        cprint('Search: ' + search, 'blue')
-        if self.requestline.__contains__('msg='):
-            msg = self.requestline.split('msg=')[1].split(' ')[0]
-            cprint('Message: ' + msg, 'blue')
+        cprint('Search: ' + search, 'blue', force_color=True)
+
         try:
             if search == '':
                 contents = Path(folder + 'main.html').read_text()
             elif search == '1':
-                if not msg.isdigit():
+                lim = self.requestline.split('lim=')[1].split(' ')[0]
+                cprint('Limit: ' + lim, 'blue', force_color=True)
+                cprint('URL: ' + server + get_ep(search), 'blue', force_color=True)
+
+                if lim == '' or lim.isdigit():
+                    info = get_info(get_ep(search))  # get dict
+                    tot_spc = len(info['species'])  # get number of total species in ensemble
+
+                    if lim == '' or int(lim) > tot_spc:
+                        lim = tot_spc  # if user does not input a limit, all species will be printed
+
+                    spclist = '<br><ul>'  # create string of species names in list format
+                    for n in range(int(lim)):
+                        spclist += '<li>' + info['species'][n]['display_name'] + ' </li>'
+                    spclist += '</ul>'
+                    contents = (Path(folder + 'content.html').read_text().replace('{lim}', str(lim)).replace('{tnum}',
+                                                                                                             str(tot_spc)).replace(
+                        '{content}', spclist))  # insert list of species into content html
+                else:
                     contents = Path(folder + 'error.html').read_text().replace('Resource not available',
                                                                                'Only numbers allowed')
-                else:
-                    contents = (Path(folder + 'content.html').read_text())
-                    get_contents(search, msg)
-            #.replace('{content}', get_contents(search, msg)))
+            elif search == '2':
+                info = get_info(get_ep(search))  # get dict
+                pprint.pp(info)
             else:
                 contents = Path(folder + 'error.html').read_text()
-            # elif search == 2:
             # elif search == 3:
         except FileNotFoundError:
             contents = Path('html/error.html').read_text()
