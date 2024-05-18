@@ -4,7 +4,8 @@ import pprint
 
 server = "rest.ensembl.org"
 params = '?content-type=application/json'
-endpoint = '/info/species'
+#endpoint = '/info/assembly'
+endpoint = '/info/species/'
 
 # Connect with the server
 conn = http.client.HTTPConnection(server)
@@ -31,12 +32,4 @@ data1 = r1.read().decode("utf-8")
 response = json.loads(data1)
 # pprint.pp(response)
 
-print('LEN: ' + str(len(response['species'])))
-
-lim = 10
-
-result = '\n'
-for n in range(lim):
-    result += '  - ' + response['species'][n]['display_name'] + '\n'
-
-print(result)
+pprint.pp(response)

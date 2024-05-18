@@ -9,12 +9,12 @@ import pprint
 server = "rest.ensembl.org"
 
 
-def get_ep(search):
+def get_ep(search, name=None):
     params = '?content-type=application/json'
-    if search == '1':
+    if search == 'listSpecies':
         endpoint = '/info/species'
     else:
-        endpoint = '/info/assembly/homo_sapiens'
+        endpoint = '/info/assembly' + name
 
     return endpoint + params
 
@@ -73,7 +73,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         try:
             if search == '':
                 contents = Path(folder + 'main.html').read_text()
-            elif search == '1':
+            elif search == 'listSpecies':
                 lim = self.requestline.split('lim=')[1].split(' ')[0]
                 cprint('Limit: ' + lim, 'blue', force_color=True)
                 cprint('URL: ' + server + get_ep(search), 'blue', force_color=True)
@@ -85,19 +85,37 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     if lim == '' or int(lim) > tot_spc:
                         lim = tot_spc  # if user does not input a limit, all species will be printed
 
-                    spclist = '<br><ul>'  # create string of species names in list format
+                    if lim == '1':
+                        spclist = 'is: <br><ul>'  # create string of species names in list format
+                    else:
+                        spclist = 'are: <br><ul>'
+
                     for n in range(int(lim)):
                         spclist += '<li>' + info['species'][n]['display_name'] + ' </li>'
                     spclist += '</ul>'
-                    contents = (Path(folder + 'content.html').read_text().replace('{lim}', str(lim)).replace('{tnum}',
-                                                                                                             str(tot_spc)).replace(
-                        '{content}', spclist))  # insert list of species into content html
+                    contents = (
+                        Path(folder + 'species_list.html').read_text().replace('{lim}', str(lim)).replace('{tnum}',
+                                                                                                          str(tot_spc)).replace(
+                            '{content}', spclist))  # insert list of species into html
                 else:
                     contents = Path(folder + 'error.html').read_text().replace('Resource not available',
                                                                                'Only numbers allowed')
-            elif search == '2':
-                info = get_info(get_ep(search))  # get dict
-                pprint.pp(info)
+            elif search == 'karyotype':
+                species_input = self.requestline.split('spc0=')[1].split(' ')[0].lower()
+                info = get_info(get_ep('1'))  # get dict all species
+                name = ''  # get the name of the species to get the chromosomes
+                for n in info['species']:
+                    if n['display_name'].lower() == species_input:
+                        name += n['name']
+                species = get_info(get_ep(search, '/' + name))  # get dict of the species
+                karyotype = species['karyotype']  # get list of the chromosome names
+                chromosomes = 'The name of the chromosomes of a ' + name + 'are: <br><ul>'  # create message
+                for n in karyotype:
+                    chromosomes += '<li>' + n + '</li>'
+                contents = Path(folder + 'karyotype.html').read_text().replace('{chromosomes}',
+                                                                               chromosomes)  # insert message into html
+            elif search == 'chromosomeLength':
+                contents = 'a'
             else:
                 contents = Path(folder + 'error.html').read_text()
             # elif search == 3:
