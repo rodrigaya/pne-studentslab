@@ -45,13 +45,15 @@ def get_info(ep):
     # pprint.pp(response)
     return response
 
-def get_name(userinput):
+
+def get_name(input_species):
     info = get_info(get_ep('listSpecies'))  # get dict all species
     name = ''  # get the name of the species to get the chromosomes
     for n in info['species']:
-        if n['display_name'].lower() == userinput.lower():
+        if n['display_name'].lower() == input_species.lower():
             name += n['name']
     return name
+
 
 # Define the Server's port
 PORT = 8080
@@ -81,8 +83,12 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             if search == '':
                 contents = Path(folder + 'main.html').read_text()
             elif search == 'listSpecies':
-                lim = self.requestline.split('lim=')[1].split(' ')[0]
-                cprint('Limit: ' + lim, 'blue', force_color=True)
+                if self.requestline.__contains__('limit='):
+                    lim = self.requestline.split('limit=')[1].split(' ')[0]
+                    cprint('Limit: ' + lim, 'blue', force_color=True)
+                else:
+                    lim = ''
+                    cprint('Limit: none', 'blue', force_color=True)
                 cprint('URL: ' + server + get_ep(search), 'blue', force_color=True)
 
                 if lim == '' or lim.isdigit():
@@ -108,24 +114,36 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     contents = Path(folder + 'error.html').read_text().replace('Resource not available',
                                                                                'Only numbers allowed')
             elif search == 'karyotype':
-                userinput = self.requestline.split('spc0=')[1].split(' ')[0].lower()
-                name = get_name(userinput)
+                input_species = self.requestline.split('species=')[1].split(' ')[0].lower().replace('+', ' ')
+                cprint('Species: ' + input_species, 'blue', force_color=True)
+                name = get_name(input_species)
                 species = get_info(get_ep(search, '/' + name))  # get dict of the species
                 karyotype = species['karyotype']  # get list of the chromosome names
-                chromosomes = 'The name of the chromosomes of a ' + name + 'are: <br><ul>'  # create message
+                chromosomes = 'The name of the chromosomes of a ' + input_species + ' ("' + name + '") are: <br><ul>'  # create message
                 for n in karyotype:
                     chromosomes += '<li>' + n + '</li>'
                 contents = Path(folder + 'karyotype.html').read_text().replace('{chromosomes}',
                                                                                chromosomes)  # insert message into html
             elif search == 'chromosomeLength':
-                input_species = self.requestline.split('spc=')[1].split('&chr=')[0].lower()
-                name = get_name(input_species)
-                species = get_info(get_ep(search, '/' + name))  # get dict of the species
-                chromosome = get_name(self.requestline.split('chr=')[1].split(' ')[0])
-                if chromosome in species['karyotype']:
-                    contents = 'bien'
+                input_species = self.requestline.split('species=')[1].split('&chromo=')[0].lower()  # get input name
+                cprint('Species: ' + input_species, 'blue', force_color=True)
+                name = get_name(input_species)  # get scientific name of species
+                if name != '':
+                    dict_species = get_info(get_ep(search, '/' + name))  # get dict of the species
+                    chromosome = self.requestline.split('chromo=')[1].split(' ')[0].upper()  # get input chromosome
+                    cprint('Chromosome: ' + chromosome, 'blue', force_color=True)
+                    found = False
+                    for n in dict_species['top_level_region']:  # search for matches of the chromosome in the species
+                        if n['name'] == chromosome:
+                            found = True  # stop execution of error page
+                            contents = Path(folder + 'chromosomeLength.html').read_text().replace('{seq_len}',
+                                                                                                  str(n['length']))
+                        elif not found:
+                            contents = Path(folder + 'error.html').read_text().replace('Resource not available',
+                                                                                       'Chromosome not found')
                 else:
-                    contents = 'a'
+                    contents = Path(folder + 'error.html').read_text().replace('Resource not available',
+                                                                               'Species not found')
             else:
                 contents = Path(folder + 'error.html').read_text()
             # elif search == 3:
