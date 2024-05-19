@@ -12,6 +12,7 @@ server = "rest.ensembl.org"
 
 def get_ep(search, name=None):
     params = '?content-type=application/json'
+    params = '?feature=gene;feature=transcript;feature=cds;feature=exon;content-type=application/json'
     if search == 'listSpecies':
         endpoint = '/info/species'
     elif search == 'geneSeq':
@@ -20,6 +21,8 @@ def get_ep(search, name=None):
         endpoint = '/sequence/id/' + name
     elif search == 'getInfoGeneById':
         endpoint = '/lookup/id/' + name
+    elif search == 'geneList':
+        endpoint = 'overlap/region/human/' + name
     else:
         endpoint = '/info/assembly' + name
 
@@ -186,15 +189,46 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                                                                                  'G') / seq.len()) * 100).__round__(1))
             elif search == 'geneList':
                 input_chromo = self.requestline.split('chromo=')[1].split('&start=')[0].upper()  # get input chromosome
+                data = get_info(get_ep('/karyotype', '/homo_sapiens'))[
+                    'top_level_region']  # get data of the human chromosomes
+                chromo_list = []
+                chromo_len_list = []
+                for n in data:  # create dictionary of chromosome with its associated length
+                    if n['coord_system'] == 'chromosome':
+                        chromo_list.append(n['name'])
+                        chromo_len_list.append(n['length'])
+                chromo_len_dict = dict(zip(chromo_list, chromo_len_list))
                 start = self.requestline.split('start=')[1].split('&end=')[0].upper()  # get input start
                 end = self.requestline.split('end=')[1].split(' ')[0].upper()  # get input end
-                list_genes = ''
-                for n in genes:
-                    list_genes += '<li>' + n + '</li>'
-                contents = Path(folder + 'geneCalc.html').read_text().format(input_chromo, start, end)
+                if input_chromo in chromo_len_dict.keys():  # check that the chromosome is valid
+                    if start == '':  # correction measures
+                        start = '0'
+                    if end == '':
+                        end = chromo_len_dict[input_chromo]
+                    if start.isdigit() and end.isdigit():  # check that the range format is valid
+                        if int(start) < int(end):  # check that there is a valid range
+                            name = input_chromo + ':' + start + '-' + end  # addition to endpoint
+                            dict_seq = get_info(get_ep(search, name))
+                            html_list_genes = ''
+                            for n in dict_seq:  # create list of valid gene names
+                                # (not considering those which have no external name)
+                                if 'external_name' in n.keys():
+                                    html_list_genes += '<li>' + n['external_name'] + '</li>'
+                            if html_list_genes != '':  # check if there are genes
+                                genes = html_list_genes
+                            else:
+                                genes = 'No genes could be found in the range given'
+                            contents = Path(folder + 'geneList.html').read_text().format(input_chromo, start, end,
+                                                                                         genes)
+                        else:
+                            contents = Path(folder + 'error.html').read_text().format('Range is not valid')
+                    else:
+                        contents = Path(folder + 'error.html').read_text().format('Range format is not valid')
+                else:
+                    contents = Path(folder + 'error.html').read_text().format('Chromosome not found')
             else:
                 contents = Path(folder + 'error.html').read_text()
-            # elif search == 3:
+
         except FileNotFoundError:
             contents = Path('html/error.html').read_text()
 
