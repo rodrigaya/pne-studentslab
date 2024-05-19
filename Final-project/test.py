@@ -188,7 +188,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             elif search == 'geneList':
                 input_chromo = self.requestline.split('chromo=')[1].split('&start=')[0].upper()  # get input chromosome
                 cprint('Chromosome: ' + input_chromo, 'blue', force_color=True)
-                data = get_info(get_ep('/karyotype', '/homo_sapiens'))[
+                data = get_info(get_ep('karyotype', '/homo_sapiens'))[
                     'top_level_region']  # get data of the human chromosomes
                 chromo_list = []
                 chromo_len_list = []
