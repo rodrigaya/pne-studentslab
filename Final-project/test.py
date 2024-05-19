@@ -5,6 +5,7 @@ from pathlib import Path
 import http.client
 import json
 import pprint
+from Seq1 import Seq
 
 server = "rest.ensembl.org"
 
@@ -13,6 +14,12 @@ def get_ep(search, name=None):
     params = '?content-type=application/json'
     if search == 'listSpecies':
         endpoint = '/info/species'
+    elif search == 'geneSeq':
+        endpoint = '/lookup/symbol/homo_sapiens/' + name
+    elif search == 'getSequenceById':
+        endpoint = '/sequence/id/' + name
+    elif search == 'getInfoGeneById':
+        endpoint = '/lookup/id/' + name
     else:
         endpoint = '/info/assembly' + name
 
@@ -118,6 +125,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 cprint('Species: ' + input_species, 'blue', force_color=True)
                 name = get_name(input_species)
                 species = get_info(get_ep(search, '/' + name))  # get dict of the species
+                pprint.pp(species)
                 karyotype = species['karyotype']  # get list of the chromosome names
                 chromosomes = 'The name of the chromosomes of a ' + input_species + ' ("' + name + '") are: <br><ul>'  # create message
                 for n in karyotype:
@@ -144,6 +152,46 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 else:
                     contents = Path(folder + 'error.html').read_text().replace('Resource not available',
                                                                                'Species not found')
+            elif search == 'geneSeq':
+                input_gene = self.requestline.split('gene=')[1].split(' ')[0].upper()  # get input gene
+                gene_id = get_info(get_ep('geneSeq', input_gene))['id']  # get corresponding id to gene name
+                gene_seq = get_info(get_ep('getSequenceById', gene_id))['seq']  # get seq of gene by id
+                contents = Path(folder + 'geneSeq.html').read_text().format(input_gene, gene_seq)
+            elif search == 'geneInfo':
+                input_gene = self.requestline.split('gene=')[1].split(' ')[0].upper()  # get input gene
+                gene_info = get_info(get_ep('geneSeq', input_gene))  # get dict of gene info
+                contents = Path(folder + 'geneInfo.html').read_text().format(input_gene, gene_info['start'],
+                                                                             gene_info['end'],
+                                                                             gene_info['end'] - gene_info['start'],
+                                                                             gene_info['id'],
+                                                                             gene_info['seq_region_name'])
+            elif search == 'geneCalc':
+                input_gene = self.requestline.split('gene=')[1].split(' ')[0].upper()  # get input gene
+                gene_id = get_info(get_ep('geneSeq', input_gene))['id']  # get corresponding id to gene name
+                seq = Seq(get_info(get_ep('getSequenceById', gene_id))['seq'])  # get seq of gene by id
+                print(seq.len())
+                pprint.pp(seq.count())
+                contents = Path(folder + 'geneCalc.html').read_text().format(input_gene, seq.len(),
+                                                                             seq.count_base('A'),
+                                                                             ((seq.count_base(
+                                                                                 'A') / seq.len()) * 100).__round__(1),
+                                                                             seq.count_base('C'),
+                                                                             ((seq.count_base(
+                                                                                 'C') / seq.len()) * 100).__round__(1),
+                                                                             seq.count_base('T'),
+                                                                             ((seq.count_base(
+                                                                                 'T') / seq.len()) * 100).__round__(1),
+                                                                             seq.count_base('G'),
+                                                                             ((seq.count_base(
+                                                                                 'G') / seq.len()) * 100).__round__(1))
+            elif search == 'geneList':
+                input_chromo = self.requestline.split('chromo=')[1].split('&start=')[0].upper()  # get input chromosome
+                start = self.requestline.split('start=')[1].split('&end=')[0].upper()  # get input start
+                end = self.requestline.split('end=')[1].split(' ')[0].upper()  # get input end
+                list_genes = ''
+                for n in genes:
+                    list_genes += '<li>' + n + '</li>'
+                contents = Path(folder + 'geneCalc.html').read_text().format(input_chromo, start, end)
             else:
                 contents = Path(folder + 'error.html').read_text()
             # elif search == 3:
