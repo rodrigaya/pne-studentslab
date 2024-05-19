@@ -29,7 +29,7 @@ def get_ep(search, name=None):
     return endpoint + params
 
 
-def get_info(ep):
+def get_info(ep, json=False):
     # Connect with the server
     conn = http.client.HTTPConnection(server)
 
