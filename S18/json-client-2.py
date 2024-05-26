@@ -1,4 +1,3 @@
-
 import http.client
 import json
 import termcolor
@@ -30,31 +29,31 @@ data1 = r1.read().decode("utf-8")
 
 # -- Create a variable with the data,
 # -- form the JSON received
-person = json.loads(data1)
-
+people = json.loads(data1)
 print("CONTENT: ")
 
 # Print the information in the object
-print()
-termcolor.cprint("Name: ", 'green', end="", force_color= True)
-print(person['Firstname'], person['Lastname'])
+for person in people['people']:
+    print()
+    termcolor.cprint("Name: ", 'green', end="", force_color=True)
+    print(person['Firstname'], person['Lastname'])
 
-termcolor.cprint("Age: ", 'green', end="", force_color= True)
-print(person['age'])
+    termcolor.cprint("Age: ", 'green', end="", force_color=True)
+    print(person['age'])
 
-# Get the phoneNumber list
-phoneNumbers = person['phoneNumber']
+    # Get the phoneNumber list
+    phoneNumbers = person['phoneNumber']
 
-# Print the number of elements int the list
-termcolor.cprint("Phone numbers: ", 'green', end='', force_color= True)
-print(len(phoneNumbers))
+    # Print the number of elements int the list
+    termcolor.cprint("Phone numbers: ", 'green', end='', force_color=True)
+    print(len(phoneNumbers))
 
-# Print all the numbers
-for i, num in enumerate(phoneNumbers):
-    termcolor.cprint("  Phone {}:".format(i), 'blue', force_color= True)
+    # Print all the numbers
+    for i, num in enumerate(phoneNumbers):
+        termcolor.cprint("  Phone {}:".format(i), 'blue', force_color=True)
 
-    # The element num contains 2 fields: number and type
-    termcolor.cprint("    Type: ", 'red', end='', force_color= True)
-    print(num['type'])
-    termcolor.cprint("    Number: ", 'red', end='', force_color= True)
-    print(num['number'])
+        # The element num contains 2 fields: number and type
+        termcolor.cprint("    Type: ", 'red', end='', force_color=True)
+        print(num['type'])
+        termcolor.cprint("    Number: ", 'red', end='', force_color=True)
+        print(num['number'])

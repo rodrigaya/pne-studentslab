@@ -2,6 +2,7 @@ import http.client
 import http.server
 import json
 from termcolor import cprint
+import pprint
 
 
 def client(endpoint, params=None):
@@ -16,7 +17,7 @@ def client(endpoint, params=None):
     # -- Send the request message, using the GET method. We are
     # -- requesting the main page (/)
     try:
-        conn.request("GET", endpoint + params + 'json1')
+        conn.request("GET", endpoint + '?' + params + '&' + 'json=1')
     except ConnectionRefusedError:
         print("ERROR! Cannot connect to the Server")
         exit()
@@ -35,4 +36,7 @@ def client(endpoint, params=None):
     response = json.loads(data1)
     return response
 
+
+a = client('/listSpecies', 'limit=')
+print(a)
 

@@ -29,7 +29,7 @@ def get_ep(search, name=None):
     return endpoint + params
 
 
-def get_info(ep, json=False):
+def get_info(ep):
     # Connect with the server
     conn = http.client.HTTPConnection(server)
 
@@ -45,7 +45,7 @@ def get_info(ep, json=False):
     r1 = conn.getresponse()
 
     # -- Print the status line
-    print(f"Response received!: {r1.status} {r1.reason}\n")
+    print(f"Response received!: {r1.status} {r1.reason}")
 
     # -- Read the response's body
     data1 = r1.read().decode("utf-8")
@@ -81,21 +81,29 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         in the HTTP protocol request"""
 
         folder = 'html/'
+        content_type = 'text/html'
 
         # Print the request line
         cprint(self.requestline, 'green', force_color=True)
 
         # Print the search
         search = self.requestline.split(' ')[1][1:].split('?')[0]
+        if search == '':
+            search = 'None'
+
         cprint('Search: ' + search, 'blue', force_color=True)
 
         try:
-            if search == '':
+            error_code = 200
+            if self.requestline.__contains__('&json=1') == '':
+                content_type = 'application/json'
+
+            if search == 'None':
                 contents = Path(folder + 'main.html').read_text()
 
             elif search == 'listSpecies':
                 if self.requestline.__contains__('limit='):
-                    lim = self.requestline.split('limit=')[1].split(' ')[0]
+                    lim = self.requestline.split('limit=')[1].split(' ')[0].split('&')[0]  # get the limit
                     cprint('Limit: ' + lim, 'blue', force_color=True)
                 else:
                     lim = ''
@@ -123,9 +131,10 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     contents = Path(folder + 'error.html').read_text().format('Incorrect limit entered')
 
             elif search == 'karyotype':
-                input_species = self.requestline.split('species=')[1].split(' ')[0].lower().replace('+', ' ')
+                input_species = self.requestline.split('species=')[1].split(' ')[0].split('&')[0].lower().replace('+',
+                                                                                                                  ' ')  # get species
                 cprint('Species: ' + input_species, 'blue', force_color=True)
-                name = get_name(input_species)
+                name = get_name(input_species)  # get scientific name of input species
                 species = get_info(get_ep(search, '/' + name))  # get dict of the species
                 karyotype = species['karyotype']  # get list of the chromosome names
                 chromosomes = 'The name of the chromosomes of a ' + input_species + ' ("' + name + '") are: <br><ul>'  # create message
@@ -138,7 +147,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 name = get_name(input_species)  # get scientific name of species
                 if name != '':
                     dict_species = get_info(get_ep(search, '/' + name))  # get dict of the species
-                    chromosome = self.requestline.split('chromo=')[1].split(' ')[0].upper()  # get input chromosome
+                    chromosome = self.requestline.split('chromo=')[1].split(' ')[0].split('&')[0].upper()  # get input chromosome
                     cprint('Chromosome: ' + chromosome, 'blue', force_color=True)
                     found = False
                     for n in dict_species['top_level_region']:  # search for matches of the chromosome in the species
@@ -150,13 +159,13 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 else:
                     contents = Path(folder + 'error.html').read_text().format('Species not found')
             elif search == 'geneSeq':
-                input_gene = self.requestline.split('gene=')[1].split(' ')[0].upper()  # get input gene
+                input_gene = self.requestline.split('gene=')[1].split(' ')[0].split('&')[0].upper()  # get input gene
                 cprint('Gene: ' + input_gene, 'blue', force_color=True)
                 gene_id = get_info(get_ep(search, input_gene))['id']  # get corresponding id to gene name
                 gene_seq = get_info(get_ep('getSequenceById', gene_id))['seq']  # get seq of gene by id
                 contents = Path(folder + 'geneSeq.html').read_text().format(input_gene, gene_seq)
             elif search == 'geneInfo':
-                input_gene = self.requestline.split('gene=')[1].split(' ')[0].upper()  # get input gene
+                input_gene = self.requestline.split('gene=')[1].split(' ')[0].split('&')[0].upper()  # get input gene
                 cprint('Gene: ' + input_gene, 'blue', force_color=True)
                 gene_info = get_info(get_ep('geneSeq', input_gene))  # get dict of gene info
                 contents = Path(folder + 'geneInfo.html').read_text().format(input_gene, gene_info['start'],
@@ -165,7 +174,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                                                                              gene_info['id'],
                                                                              gene_info['seq_region_name'])
             elif search == 'geneCalc':
-                input_gene = self.requestline.split('gene=')[1].split(' ')[0].upper()  # get input gene
+                input_gene = self.requestline.split('gene=')[1].split(' ')[0].split('&')[0].upper()  # get input gene
                 cprint('Gene: ' + input_gene, 'blue', force_color=True)
                 gene_id = get_info(get_ep('geneSeq', input_gene))['id']  # get corresponding id to gene name
                 seq = Seq(get_info(get_ep('getSequenceById', gene_id))['seq'])  # get seq of gene by id
@@ -198,15 +207,19 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 if start == '':  # correction measure
                     start = '0'
                 cprint('Start: ' + start, 'blue', force_color=True)
-                end = self.requestline.split('end=')[1].split(' ')[0].upper()  # get input end
+                end = self.requestline.split('end=')[1].split(' ')[0].split('&')[0].upper()  # get input end
                 if end == '':  # correction measure
                     end = chromo_len_dict[input_chromo]
-                cprint('End: ' + end, 'blue', force_color=True)
                 if input_chromo in chromo_len_dict.keys():  # check that the chromosome is valid
                     if start.isdigit() and end.isdigit():  # check that the range format is valid
                         if int(start) < int(end):  # check that there is a valid range
+                            if int(end) > chromo_len_dict[input_chromo]:  # correction measure
+                                end = str(chromo_len_dict[input_chromo])
+                            if int(end) - int(start) > 5000000:  # function won't let more than this range
+                                end = str(int(start) + 5000000 - 1)
+                            cprint('End: ' + end, 'blue', force_color=True)
                             name = input_chromo + ':' + start + '-' + end  # addition to endpoint
-                            dict_seq = get_info(get_ep(search, name))
+                            dict_seq = get_info(get_ep(search, name))  # get genes in range
                             html_list_genes = ''
                             for n in dict_seq:  # create list of valid gene names
                                 # (not considering those which don't have external name)
@@ -229,12 +242,13 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         except FileNotFoundError:
             contents = Path('html/error.html').read_text().format('File not found')
+            error_code = 404
 
         # Generating the response message
-        self.send_response(200)  # -- Status line: OK!
+        self.send_response(error_code)  # -- Status line: OK!
 
         # Define the content-type header:
-        self.send_header('Content-Type', 'text/html')
+        self.send_header('Content-Type', content_type)
         self.send_header('Content-Length', len(str.encode(contents)))
 
         # The header is finished
