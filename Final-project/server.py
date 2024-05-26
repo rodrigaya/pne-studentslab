@@ -81,11 +81,13 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         in the HTTP protocol request"""
 
         folder = 'html/'
+        jSon = False
         if self.requestline.__contains__('&json=1'):
+            jSon = True
             content_type = 'application/json'
         else:
             content_type = 'text/html'
-
+        print(jSon)
         # Print the request line
         cprint(self.requestline, 'green', force_color=True)
 
@@ -111,22 +113,25 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 cprint('URL: ' + server + get_ep(search), 'blue', force_color=True)
 
                 if (lim == '' or lim.isdigit()) and lim != '0':
-                    info = get_info(get_ep(search))  # get dict
-                    tot_spc = len(info['species'])  # get number of total species in ensemble
-
-                    if lim == '' or int(lim) > tot_spc:
-                        lim = tot_spc  # if user does not input a limit, all species will be printed
-
-                    if lim == '1':
-                        spclist = 'is: <br><ul>'  # create string of species names in list format
+                    if jSon:
+                        contents = get_info(get_ep(search))
                     else:
-                        spclist = 'are: <br><ul>'
+                        info = get_info(get_ep(search))  # get dict
+                        tot_spc = len(info['species'])  # get number of total species in ensemble
 
-                    for n in range(int(lim)):
-                        spclist += '<li>' + info['species'][n]['display_name'] + ' </li>'
-                    spclist += '</ul>'
-                    contents = Path(folder + 'species_list.html').read_text().format(str(tot_spc), str(lim), spclist)
-                    # insert list of species into html
+                        if lim == '' or int(lim) > tot_spc:
+                            lim = tot_spc  # if user does not input a limit, all species will be printed
+
+                        if lim == '1':
+                            spclist = 'is: <br><ul>'  # create string of species names in list format
+                        else:
+                            spclist = 'are: <br><ul>'
+
+                        for n in range(int(lim)):
+                            spclist += '<li>' + info['species'][n]['display_name'] + ' </li>'
+                        spclist += '</ul>'
+                        contents = Path(folder + 'species_list.html').read_text().format(str(tot_spc), str(lim), spclist)
+                        # insert list of species into html
                 else:
                     contents = Path(folder + 'error.html').read_text().format('Incorrect limit entered')
 
@@ -209,9 +214,9 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     start = '0'
                 cprint('Start: ' + start, 'blue', force_color=True)
                 end = self.requestline.split('end=')[1].split(' ')[0].split('&')[0].upper()  # get input end
-                if end == '':  # correction measure
-                    end = chromo_len_dict[input_chromo]
                 if input_chromo in chromo_len_dict.keys():  # check that the chromosome is valid
+                    if end == '':  # correction measure
+                        end = chromo_len_dict[input_chromo]
                     if start.isdigit() and end.isdigit():  # check that the range format is valid
                         if int(start) < int(end):  # check that there is a valid range
                             if int(end) > chromo_len_dict[input_chromo]:  # correction measure

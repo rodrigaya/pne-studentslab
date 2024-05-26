@@ -37,6 +37,5 @@ def client(endpoint, params=None):
     return response
 
 
-a = client('/listSpecies', 'limit=1')
-print(a)
+client('/listSpecies', 'limit=1')
 
