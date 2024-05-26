@@ -81,7 +81,10 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         in the HTTP protocol request"""
 
         folder = 'html/'
-        content_type = 'text/html'
+        if self.requestline.__contains__('&json=1'):
+            content_type = 'application/json'
+        else:
+            content_type = 'text/html'
 
         # Print the request line
         cprint(self.requestline, 'green', force_color=True)
@@ -90,13 +93,10 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         search = self.requestline.split(' ')[1][1:].split('?')[0]
         if search == '':
             search = 'None'
-
         cprint('Search: ' + search, 'blue', force_color=True)
 
         try:
             error_code = 200
-            if self.requestline.__contains__('&json=1') == '':
-                content_type = 'application/json'
 
             if search == 'None':
                 contents = Path(folder + 'main.html').read_text()
@@ -147,7 +147,8 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 name = get_name(input_species)  # get scientific name of species
                 if name != '':
                     dict_species = get_info(get_ep(search, '/' + name))  # get dict of the species
-                    chromosome = self.requestline.split('chromo=')[1].split(' ')[0].split('&')[0].upper()  # get input chromosome
+                    chromosome = self.requestline.split('chromo=')[1].split(' ')[0].split('&')[
+                        0].upper()  # get input chromosome
                     cprint('Chromosome: ' + chromosome, 'blue', force_color=True)
                     found = False
                     for n in dict_species['top_level_region']:  # search for matches of the chromosome in the species
